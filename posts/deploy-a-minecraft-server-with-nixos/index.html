@@ -1,0 +1,568 @@
+<!doctype html><html class="not-ready lg:text-base" style=--bg:#faf8f1 lang=zh-cn><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>Deploy a Minecraft Server With NixOS - oo-infty's site</title>
+<meta name=theme-color><meta name=description content="紧张的考试周过后，终于有时间和朋友玩 Minecraft 了。为了方便进行多人游戏，我和 @whitepaperdog 决定购买一台云主机作为服务器。鉴于 NixOS 强大的 reproducibility 以及我这半年使用 NixOS 的优秀体验，我决定将服务器的系统更换为 NixOS，并在其之上部署 Minecraft 服务。
+准备工作 NixOS 安装 这台服务器并不是用我的账号买的，所以我没有办法直接在控制台上传 NixOS 的镜像进行安装。等我拿到 root 密码后，系统就已经是 Ubuntu 了。在此情况下，我选择了使用 NixOS-infect。NixOS-infect 是一个 shell 脚本，其在服务器上安装 Nix，再用 Nix 构建出 NixOS，最后修改 bootloader 配置，添加 NixOS 的启动项并删除其他东西。
+使用 NixOS-infect 前需要配置好访问 root 的 SSH 公钥，这是因为 NixOS-infect 并没有提供设置 root 密码的步骤，并且 NixOS 默认情况下将禁用 SSH 通过密码登录 root。NixOS-infect 脚本会将原有的 root 的公钥重新导入到新的 NixOS 里。
+由于服务器在国内，所以访问 nixpkgs 的 cache 将会非常慢，在安装 NixOS 之前需要配置好 cache 镜像。编辑脚本，在完成 Nix 的安装后，配置镜像源：
+infect() { # ."><meta name=author content="oo-infty"><link rel="preload stylesheet" as=style href=https://oo-infty.netlify.app/main.min.css><link rel=preload as=image href=https://oo-infty.netlify.app/theme.svg><link rel=preload as=image href="https://cravatar.cn/avatar/f14933f57df2a9ffb229419fa19ce98f?s=512"><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css integrity=sha384-3UiQGuEI4TTMaFmGIZumfRPtfKQ3trwQE2JgosJxCnGmQpL/lJdjpcHkaaFwHlcI crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.js integrity=sha384-G0zcxDFp5LWZtDuRMnBkk3EphCK1lhEf4UEyEM693ka574TZGwo4IWwS6QLzM/2t crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/contrib/auto-render.min.js integrity=sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05 crossorigin=anonymous></script><script>document.addEventListener("DOMContentLoaded",()=>renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}],throwOnError:!1}))</script><link rel=icon href=https://oo-infty.netlify.app/favicon.ico><link rel=apple-touch-icon href=https://oo-infty.netlify.app/apple-touch-icon.png><meta name=generator content="Hugo 0.128.2"><meta itemprop=name content="Deploy a Minecraft Server With NixOS"><meta itemprop=description content="紧张的考试周过后，终于有时间和朋友玩 Minecraft 了。为了方便进行多人游戏，我和 @whitepaperdog 决定购买一台云主机作为服务器。鉴于 NixOS 强大的 reproducibility 以及我这半年使用 NixOS 的优秀体验，我决定将服务器的系统更换为 NixOS，并在其之上部署 Minecraft 服务。
+准备工作 NixOS 安装 这台服务器并不是用我的账号买的，所以我没有办法直接在控制台上传 NixOS 的镜像进行安装。等我拿到 root 密码后，系统就已经是 Ubuntu 了。在此情况下，我选择了使用 NixOS-infect。NixOS-infect 是一个 shell 脚本，其在服务器上安装 Nix，再用 Nix 构建出 NixOS，最后修改 bootloader 配置，添加 NixOS 的启动项并删除其他东西。
+使用 NixOS-infect 前需要配置好访问 root 的 SSH 公钥，这是因为 NixOS-infect 并没有提供设置 root 密码的步骤，并且 NixOS 默认情况下将禁用 SSH 通过密码登录 root。NixOS-infect 脚本会将原有的 root 的公钥重新导入到新的 NixOS 里。
+由于服务器在国内，所以访问 nixpkgs 的 cache 将会非常慢，在安装 NixOS 之前需要配置好 cache 镜像。编辑脚本，在完成 Nix 的安装后，配置镜像源：
+infect() { # ."><meta itemprop=datePublished content="2024-07-05T15:42:09+08:00"><meta itemprop=dateModified content="2024-07-05T15:42:09+08:00"><meta itemprop=wordCount content="1723"><meta property="og:url" content="https://oo-infty.netlify.app/posts/deploy-a-minecraft-server-with-nixos/"><meta property="og:site_name" content="oo-infty's site"><meta property="og:title" content="Deploy a Minecraft Server With NixOS"><meta property="og:description" content="紧张的考试周过后，终于有时间和朋友玩 Minecraft 了。为了方便进行多人游戏，我和 @whitepaperdog 决定购买一台云主机作为服务器。鉴于 NixOS 强大的 reproducibility 以及我这半年使用 NixOS 的优秀体验，我决定将服务器的系统更换为 NixOS，并在其之上部署 Minecraft 服务。
+准备工作 NixOS 安装 这台服务器并不是用我的账号买的，所以我没有办法直接在控制台上传 NixOS 的镜像进行安装。等我拿到 root 密码后，系统就已经是 Ubuntu 了。在此情况下，我选择了使用 NixOS-infect。NixOS-infect 是一个 shell 脚本，其在服务器上安装 Nix，再用 Nix 构建出 NixOS，最后修改 bootloader 配置，添加 NixOS 的启动项并删除其他东西。
+使用 NixOS-infect 前需要配置好访问 root 的 SSH 公钥，这是因为 NixOS-infect 并没有提供设置 root 密码的步骤，并且 NixOS 默认情况下将禁用 SSH 通过密码登录 root。NixOS-infect 脚本会将原有的 root 的公钥重新导入到新的 NixOS 里。
+由于服务器在国内，所以访问 nixpkgs 的 cache 将会非常慢，在安装 NixOS 之前需要配置好 cache 镜像。编辑脚本，在完成 Nix 的安装后，配置镜像源：
+infect() { # ."><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-07-05T15:42:09+08:00"><meta property="article:modified_time" content="2024-07-05T15:42:09+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Deploy a Minecraft Server With NixOS"><meta name=twitter:description content="紧张的考试周过后，终于有时间和朋友玩 Minecraft 了。为了方便进行多人游戏，我和 @whitepaperdog 决定购买一台云主机作为服务器。鉴于 NixOS 强大的 reproducibility 以及我这半年使用 NixOS 的优秀体验，我决定将服务器的系统更换为 NixOS，并在其之上部署 Minecraft 服务。
+准备工作 NixOS 安装 这台服务器并不是用我的账号买的，所以我没有办法直接在控制台上传 NixOS 的镜像进行安装。等我拿到 root 密码后，系统就已经是 Ubuntu 了。在此情况下，我选择了使用 NixOS-infect。NixOS-infect 是一个 shell 脚本，其在服务器上安装 Nix，再用 Nix 构建出 NixOS，最后修改 bootloader 配置，添加 NixOS 的启动项并删除其他东西。
+使用 NixOS-infect 前需要配置好访问 root 的 SSH 公钥，这是因为 NixOS-infect 并没有提供设置 root 密码的步骤，并且 NixOS 默认情况下将禁用 SSH 通过密码登录 root。NixOS-infect 脚本会将原有的 root 的公钥重新导入到新的 NixOS 里。
+由于服务器在国内，所以访问 nixpkgs 的 cache 将会非常慢，在安装 NixOS 之前需要配置好 cache 镜像。编辑脚本，在完成 Nix 的安装后，配置镜像源：
+infect() { # ."><link rel=canonical href=https://oo-infty.netlify.app/posts/deploy-a-minecraft-server-with-nixos/></head><body class="text-black duration-200 ease-out dark:text-white"><header class="mx-auto flex h-[4.5rem] max-w-3xl px-8 lg:justify-center"><div class="relative z-50 mr-auto flex items-center"><a class="-translate-x-[1px] -translate-y-[1px] text-2xl font-semibold" href=https://oo-infty.netlify.app/>oo-infty's site</a><div class="btn-dark text-[0] ml-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.svg)_left_center/cover_no-repeat] dark:invert dark:[background-position:right]" role=button aria-label=Dark></div></div><div class="btn-menu relative z-50 -mr-8 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden" role=button aria-label=Menu></div><script>const htmlClass=document.documentElement.classList;setTimeout(()=>{htmlClass.remove("not-ready")},10);const btnMenu=document.querySelector(".btn-menu");btnMenu.addEventListener("click",()=>{htmlClass.toggle("open")});const metaTheme=document.querySelector('meta[name="theme-color"]'),lightBg="#faf8f1".replace(/"/g,""),setDark=e=>{metaTheme.setAttribute("content",e?"#000":lightBg),htmlClass[e?"add":"remove"]("dark"),localStorage.setItem("dark",e)},darkScheme=window.matchMedia("(prefers-color-scheme: dark)");if(htmlClass.contains("dark"))setDark(!0);else{const e=localStorage.getItem("dark");setDark(e?e==="true":darkScheme.matches)}darkScheme.addEventListener("change",e=>{setDark(e.matches)});const btnDark=document.querySelector(".btn-dark");btnDark.addEventListener("click",()=>{setDark(localStorage.getItem("dark")!=="true")})</script><div class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"><nav class="lg:ml-12 lg:flex lg:flex-row lg:items-center lg:space-x-6"><a class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal" href=/>Home</a>
+<a class="block text-center text-2xl leading-[5rem] lg:text-base lg:font-normal" href=/about/>About</a></nav></div></header><main class="prose prose-neutral relative mx-auto min-h-[calc(100%-9rem)] max-w-3xl px-8 pb-16 pt-12 dark:prose-invert"><article><header class=mb-16><h1 class="!my-0 pb-2.5">Deploy a Minecraft Server With NixOS</h1><div class="text-sm antialiased opacity-60"><time>Jul 5, 2024</time></div></header><section><p>紧张的考试周过后，终于有时间和朋友玩 Minecraft 了。为了方便进行多人游戏，我和 <a href=https://github.com/whitepaperdog>@whitepaperdog</a> 决定购买一台云主机作为服务器。鉴于 NixOS 强大的 reproducibility 以及我这半年使用 NixOS 的优秀体验，我决定将服务器的系统更换为 NixOS，并在其之上部署 Minecraft 服务。</p><h2 id=准备工作>准备工作</h2><h3 id=nixos-安装>NixOS 安装</h3><p>这台服务器并不是用我的账号买的，所以我没有办法直接在控制台上传 NixOS 的镜像进行安装。等我拿到 root 密码后，系统就已经是 Ubuntu 了。在此情况下，我选择了使用 <a href=https://github.com/elitak/nixos-infect>NixOS-infect</a>。NixOS-infect 是一个 shell 脚本，其在服务器上安装 Nix，再用 Nix 构建出 NixOS，最后修改 bootloader 配置，添加 NixOS 的启动项并删除其他东西。</p><p>使用 NixOS-infect 前需要配置好访问 root 的 SSH 公钥，这是因为 NixOS-infect 并没有提供设置 root 密码的步骤，并且 NixOS 默认情况下将禁用 SSH 通过密码登录 root。NixOS-infect 脚本会将原有的 root 的公钥重新导入到新的 NixOS 里。</p><p>由于服务器在国内，所以访问 nixpkgs 的 cache 将会非常慢，在安装 NixOS 之前需要配置好 cache 镜像。编辑脚本，在完成 Nix 的安装后，配置镜像源：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>infect<span style=color:#f92672>()</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span>  NIX_INSTALL_URL<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>NIX_INSTALL_URL<span style=color:#66d9ef>:-</span>https://nixos.org/nix/install<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>  curl -L <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>NIX_INSTALL_URL<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span> | sh -s -- --no-channel-add
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># 添加以下 3 行</span>
+</span></span><span style=display:flex><span>  cat <span style=color:#e6db74>&lt;&lt; EOF &gt; /etc/nix/nix.conf
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>substituters = https://mirror.sjtu.edu.cn/nix-channels/store https://mirrors.ustc.edu.cn/nix-channels/store https://cache.nixos.org/
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  EOF</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># shellcheck disable=SC1090</span>
+</span></span><span style=display:flex><span>  source ~/.nix-profile/etc/profile.d/nix.sh
+</span></span><span style=display:flex><span>  <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>随后就是运行脚本，等待 SSH 断开，安装完成。</p><h3 id=基本可用的-nixos-配置>基本可用的 NixOS 配置</h3><p>安装完成后，用 <code>scp</code> 从服务器上复制出其配置，其中的对于文件系统的配置是有用的。</p><p>在本地，新建目录，创建以下文件：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./flake.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;CLYZ Minecraft Server Flake&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  nixConfig <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    substituters <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>      <span style=color:#e6db74>&#34;https://mirrors.ustc.edu.cn/nix-channels/store&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#e6db74>&#34;https://mirror.sjtu.edu.cn/nix-channels/store&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#e6db74>&#34;https://cache.nixos.org&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#e6db74>&#34;https://nix-community.cachix.org&#34;</span>      
+</span></span><span style=display:flex><span>    ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    trusted-public-keys <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>      <span style=color:#e6db74>&#34;cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#e6db74>&#34;nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=&#34;</span>
+</span></span><span style=display:flex><span>    ];
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  inputs <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    nixpkgs<span style=color:#f92672>.</span>url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;github:NixOS/nixpkgs/nixos-unstable&#34;</span>;
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  outputs <span style=color:#f92672>=</span> { self<span style=color:#f92672>,</span> nixpkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }<span style=color:#f92672>@</span>inputs: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    pkgs <span style=color:#f92672>=</span> <span style=color:#f92672>import</span> nixpkgs { system <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64-linux&#34;</span>; };
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>    nixosConfigurations<span style=color:#f92672>.</span>clyz-minecraft <span style=color:#f92672>=</span> nixpkgs<span style=color:#f92672>.</span>lib<span style=color:#f92672>.</span>nixosSystem {
+</span></span><span style=display:flex><span>      system <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64-linux&#34;</span>;
+</span></span><span style=display:flex><span>      specialArgs <span style=color:#f92672>=</span> { <span style=color:#66d9ef>inherit</span> inputs; };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      modules <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>./system</span>
+</span></span><span style=display:flex><span>      ];
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    devShells<span style=color:#f92672>.</span>x86_64-linux<span style=color:#f92672>.</span>default <span style=color:#f92672>=</span> <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>      mkShell <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>mkShell<span style=color:#f92672>.</span>override { stdenv <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>stdenvNoCC; };
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>in</span>
+</span></span><span style=display:flex><span>      mkShell {
+</span></span><span style=display:flex><span>        packages <span style=color:#f92672>=</span> <span style=color:#66d9ef>with</span> pkgs; [
+</span></span><span style=display:flex><span>          nil
+</span></span><span style=display:flex><span>        ];
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./system/default.nix</span>
+</span></span><span style=display:flex><span>{ config<span style=color:#f92672>,</span> lib<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  imports <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>./hardware.nix</span>
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  networking<span style=color:#f92672>.</span>hostName <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;clyz-minecraft&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  time<span style=color:#f92672>.</span>timeZone <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Asia/Shanghai&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  users<span style=color:#f92672>.</span>users <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    oo-infty <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  users<span style=color:#f92672>.</span>users<span style=color:#f92672>.</span>root<span style=color:#f92672>.</span>openssh<span style=color:#f92672>.</span>authorizedKeys<span style=color:#f92672>.</span>keys <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ssh-ed25519 ...&#34;</span>
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  services<span style=color:#f92672>.</span>openssh<span style=color:#f92672>.</span>enable <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>  programs<span style=color:#f92672>.</span>zsh<span style=color:#f92672>.</span>enable <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  environment<span style=color:#f92672>.</span>systemPackages <span style=color:#f92672>=</span> <span style=color:#66d9ef>with</span> pkgs; [
+</span></span><span style=display:flex><span>    bat
+</span></span><span style=display:flex><span>    fd
+</span></span><span style=display:flex><span>    git
+</span></span><span style=display:flex><span>    helix
+</span></span><span style=display:flex><span>    htop
+</span></span><span style=display:flex><span>    neofetch
+</span></span><span style=display:flex><span>    ripgrep
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  system<span style=color:#f92672>.</span>stateVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;24.11&#34;</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./system/hardward.nix</span>
+</span></span><span style=display:flex><span>{ modulesPath<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  imports <span style=color:#f92672>=</span> [ (modulesPath <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;/profiles/qemu-guest.nix&#34;</span>) ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  boot<span style=color:#f92672>.</span>loader<span style=color:#f92672>.</span>grub<span style=color:#f92672>.</span>device <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/dev/vda&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  boot<span style=color:#f92672>.</span>initrd<span style=color:#f92672>.</span>availableKernelModules <span style=color:#f92672>=</span> [ <span style=color:#e6db74>&#34;ata_piix&#34;</span> <span style=color:#e6db74>&#34;uhci_hcd&#34;</span> <span style=color:#e6db74>&#34;xen_blkfront&#34;</span> <span style=color:#e6db74>&#34;vmw_pvscsi&#34;</span> ];
+</span></span><span style=display:flex><span>  boot<span style=color:#f92672>.</span>initrd<span style=color:#f92672>.</span>kernelModules <span style=color:#f92672>=</span> [ <span style=color:#e6db74>&#34;nvme&#34;</span> ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  boot<span style=color:#f92672>.</span>tmp<span style=color:#f92672>.</span>cleanOnBoot <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>  fileSystems<span style=color:#f92672>.</span><span style=color:#e6db74>&#34;/&#34;</span> <span style=color:#f92672>=</span> { device <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/dev/vda1&#34;</span>; fsType <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;ext4&#34;</span>; };
+</span></span><span style=display:flex><span>  zramSwap<span style=color:#f92672>.</span>enable <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>随后可用在本地运行以下命令，测试能否构建出一个可用的 NixOS（当然会是可用的）：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>nixos-rebuild build-vm --flake .#clyz-minecraft
+</span></span><span style=display:flex><span>./result/bin/run-clyz-minecraft-vm
+</span></span></code></pre></div><p>然后再用 <code>scp</code> 复制到服务器上，在服务器上运行：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>nixos-rebuild switch --flake .#clyz-minecraft
+</span></span><span style=display:flex><span>reboot <span style=color:#75715e># 重启是必要的，需要修改 hostname</span>
+</span></span></code></pre></div><p>接下来就可以登录上去运行一下 <code>neofetch</code>，展示一下传统艺能。</p><h2 id=改善运维体验>改善运维体验</h2><p>虽然说是运维，其实更像是开发，大部分时间都是在写 Nix，然后做各种的测试。可以说 Nix 和 NixOS 就是 DevOps 的理想解决方案。</p><h3 id=版本控制>版本控制</h3><p>不必多说，<code>git init</code>，并在 GitHub 上创建<a href=https://github.com/clyz-oi/clyz-minecraft>远程仓库</a>。</p><h3 id=开发体验>开发体验</h3><p>首先是要方便写 Nix 代码，所以 Nix 开发体验需要首先改善。</p><p>在 <code>flake.nix</code> 中添加以下部分：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./flake.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  outputs <span style=color:#f92672>=</span> { self<span style=color:#f92672>,</span> nixpkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }<span style=color:#f92672>@</span>inputs: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    pkgs <span style=color:#f92672>=</span> <span style=color:#f92672>import</span> nixpkgs { system <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64-linux&#34;</span>; };
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>    devShells<span style=color:#f92672>.</span>x86_64-linux<span style=color:#f92672>.</span>default <span style=color:#f92672>=</span> <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>      mkShell <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>mkShell<span style=color:#f92672>.</span>override { stdenv <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>stdenvNoCC; };
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>in</span>
+</span></span><span style=display:flex><span>      mkShell {
+</span></span><span style=display:flex><span>        packages <span style=color:#f92672>=</span> <span style=color:#66d9ef>with</span> pkgs; [
+</span></span><span style=display:flex><span>          nil
+</span></span><span style=display:flex><span>        ];
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>nil</code> 是一个 Nix Language Server，对于 Nix 语言的补全还是比较方便的。</p><p>这里添加了一个 <code>devShell</code>，此时只能通过 <code>nix develop</code> 进入这个 <code>devShell</code>，而且默认是 <code>bash</code>，对我这个 <code>zsh</code> 用户实在不友好。所以利用好 <code>direnv</code>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-env data-lang=env><span style=display:flex><span><span style=color:#75715e># ./.envrc</span>
+</span></span><span style=display:flex><span>echo <span style=color:#e6db74>&#34;direnv: loading .envrc&#34;</span>
+</span></span><span style=display:flex><span>use flake
+</span></span></code></pre></div><p>接下来只要进入目录就会自动加载环境变量，也就进入了一个有相关工具的 zsh 环境了。</p><p>我使用 <a href=https://github.com/helix-editor/helix>Helix</a> 编辑器，所以在当前目录下添加 Nix 语言配置：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#75715e># ./.helix/languages.toml</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>language-server</span>.<span style=color:#a6e22e>nil</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>command</span> = <span style=color:#e6db74>&#34;nil&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>config</span> = { <span style=color:#a6e22e>nil</span> = { <span style=color:#a6e22e>diagnostics</span> = { <span style=color:#a6e22e>ignored</span> = [<span style=color:#e6db74>&#34;unused_binding&#34;</span>, <span style=color:#e6db74>&#34;unused_with&#34;</span>], <span style=color:#a6e22e>excludedFiles</span> = [] }, <span style=color:#a6e22e>nix</span> = { <span style=color:#a6e22e>binary</span> = <span style=color:#e6db74>&#34;nix&#34;</span>, <span style=color:#a6e22e>maxMemoryMB</span> = <span style=color:#ae81ff>2560</span>, <span style=color:#a6e22e>flake</span> = { <span style=color:#a6e22e>autoArchive</span> = <span style=color:#66d9ef>false</span>, <span style=color:#a6e22e>autoEvalInputs</span> = <span style=color:#66d9ef>false</span>, <span style=color:#a6e22e>nixpkgsInputName</span> = <span style=color:#e6db74>&#34;nixpkgs&#34;</span> } } } }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>[[<span style=color:#a6e22e>languages</span>]]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>name</span> = <span style=color:#e6db74>&#34;nix&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>indent</span> = { <span style=color:#a6e22e>tab-width</span> = <span style=color:#ae81ff>2</span>, <span style=color:#a6e22e>unit</span> = <span style=color:#e6db74>&#34;  &#34;</span> }
+</span></span></code></pre></div><h3 id=部署工具>部署工具</h3><p>每次改好配置后还要 <code>scp</code> 再登录上去手动 <code>nixos-rebuild</code> 的流程实在是难以接受。这个时候就需要借助 <code>colmena</code> 了。<code>clomena</code> 就是一个 NixOS 部署工具，只要在本地运行一行命令，就可以在本地完成 evaluation 和 instantiation，随后将构建结果通过 SSH 传输到服务器上，最后触发服务器上切换配置。</p><p>对 <code>flake.nix</code> 做出如下修改：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./flake.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  outputs <span style=color:#f92672>=</span> { self<span style=color:#f92672>,</span> nixpkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }<span style=color:#f92672>@</span>inputs: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    pkgs <span style=color:#f92672>=</span> <span style=color:#f92672>import</span> nixpkgs { system <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64-linux&#34;</span>; };
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>    <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span>    colmena <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      meta <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        nixpkgs <span style=color:#f92672>=</span> pkgs;
+</span></span><span style=display:flex><span>        specialArgs <span style=color:#f92672>=</span> { <span style=color:#66d9ef>inherit</span> inputs; };
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      clyz-minecraft <span style=color:#f92672>=</span> { name<span style=color:#f92672>,</span> nodes<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }: {
+</span></span><span style=display:flex><span>        deployment <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>          targetHost <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;...&#34;</span>;
+</span></span><span style=display:flex><span>          tags <span style=color:#f92672>=</span> [ <span style=color:#e6db74>&#34;production&#34;</span> ];
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        imports <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>./system</span>
+</span></span><span style=display:flex><span>        ];
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    devShells<span style=color:#f92672>.</span>x86_64-linux<span style=color:#f92672>.</span>default <span style=color:#f92672>=</span> <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>      mkShell <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>mkShell<span style=color:#f92672>.</span>override { stdenv <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>stdenvNoCC; };
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>in</span>
+</span></span><span style=display:flex><span>      mkShell {
+</span></span><span style=display:flex><span>        packages <span style=color:#f92672>=</span> <span style=color:#66d9ef>with</span> pkgs; [
+</span></span><span style=display:flex><span>          nil
+</span></span><span style=display:flex><span>          colmena
+</span></span><span style=display:flex><span>        ];
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>这就相当于再写一遍 <code>nixosConfigurations</code> 的定义，基本上没什么工作量，但是马上获得远程部署功能，大大加快开发进程。</p><p>需要注意 <code>colmena</code> 与远程主机的交互需要通过 SSH 访问 root，所以不可以取消远程访问 root 的功能。</p><p>接下来运行 <code>colmena apply</code>，更新所有配置。</p><h2 id=minecraft-服务部署>Minecraft 服务部署</h2><h3 id=minecraft-server-derivation>Minecraft Server Derivation</h3><p>考虑到需要安装 mod，所以需要一个 Fabric 服务器核心。搜索了 nixpkgs，之找到了原版核心和 Paper 核心，所以这次需要自己动手写一个 derivation。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./pkgs/minecraft-server/default.nix</span>
+</span></span><span style=display:flex><span>{ lib
+</span></span><span style=display:flex><span><span style=color:#f92672>,</span> stdenvNoCC
+</span></span><span style=display:flex><span><span style=color:#f92672>,</span> fetchurl
+</span></span><span style=display:flex><span><span style=color:#f92672>,</span> jdk21_headless
+</span></span><span style=display:flex><span><span style=color:#f92672>,</span> makeBinaryWrapper
+</span></span><span style=display:flex><span>}:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>  mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>  loaderVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.15.11&#34;</span>;
+</span></span><span style=display:flex><span>  launcherVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.0.1&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>in</span>
+</span></span><span style=display:flex><span>stdenvNoCC<span style=color:#f92672>.</span>mkDerivation {
+</span></span><span style=display:flex><span>  pname <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;minecraft-server&#34;</span>;
+</span></span><span style=display:flex><span>  version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;mc.</span><span style=color:#e6db74>${</span>mcVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>-loader.</span><span style=color:#e6db74>${</span>loaderVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>-launcher.</span><span style=color:#e6db74>${</span>launcherVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  src <span style=color:#f92672>=</span> fetchurl {
+</span></span><span style=display:flex><span>    url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://meta.fabricmc.net/v2/versions/loader/</span><span style=color:#e6db74>${</span>mcVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>/</span><span style=color:#e6db74>${</span>loaderVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>/</span><span style=color:#e6db74>${</span>launcherVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>/server/jar&#34;</span>;
+</span></span><span style=display:flex><span>    hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-/j9wIzYSoP+ZEfeRJSsRwWhhTNkTMr+vN40UX9s+ViM=&#34;</span>;
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  dontUnpack <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>  preferLocalBuild <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>  allowSubstitutes <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  nativeBuildInputs <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>    makeBinaryWrapper
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  installPhase <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    runHook preInstall
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    install -D $src $out/share/minecraft-server/minecraft-server.jar 
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    makeWrapper </span><span style=color:#e6db74>${</span>jdk21_headless<span style=color:#e6db74>}</span><span style=color:#e6db74>/bin/java $out/bin/minecraft-server \
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        --append-flags &#34;-jar $out/share/minecraft-server/minecraft-server.jar --nogui&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    runHook postInstall
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  &#39;&#39;</span>;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>一个 derivation 就这样完成了，接下来就把它加入到 <code>flake.nix</code> 中导出，方便后续引用。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./flake.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  outputs <span style=color:#f92672>=</span> { self<span style=color:#f92672>,</span> nixpkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }<span style=color:#f92672>@</span>inputs: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    pkgs <span style=color:#f92672>=</span> <span style=color:#f92672>import</span> nixpkgs { system <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64-linux&#34;</span>; };
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>    packages<span style=color:#f92672>.</span>x86_64-linux<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>callPackage <span style=color:#e6db74>./pkgs/minecraft-server</span> {};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=部署-systemd-服务>部署 Systemd 服务</h3><p>搜索 <a href=https://search.nixos.org/options?>NixOS Options</a>，刚好已经有了相关的配置解决方案 <code>services.minecraft-server</code>，于是我们可以直接使用现成的：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./system/service.nix</span>
+</span></span><span style=display:flex><span>{ config<span style=color:#f92672>,</span> lib<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> inputs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  services<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    enable <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>    package <span style=color:#f92672>=</span> inputs<span style=color:#f92672>.</span>self<span style=color:#f92672>.</span>packages<span style=color:#f92672>.</span><span style=color:#e6db74>${</span>pkgs<span style=color:#f92672>.</span>system<span style=color:#e6db74>}</span><span style=color:#f92672>.</span>minecraft-server;
+</span></span><span style=display:flex><span>    eula <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>    openFirewall <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>    declarative <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    serverProperties <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      level-seed <span style=color:#f92672>=</span> <span style=color:#ae81ff>-6614766569353866106</span>;
+</span></span><span style=display:flex><span>      server-port <span style=color:#f92672>=</span> <span style=color:#ae81ff>25600</span>;
+</span></span><span style=display:flex><span>      difficulty <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;hard&#34;</span>;
+</span></span><span style=display:flex><span>      white-list <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>      enforce-secure-profile <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>      allow-flight <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    jvmOpts <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;-Xmx3896M -Xms2048M&#34;</span>;
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>注意到 <code>services.minecraft-server.package</code>，这个 option 可以指定为之前写的 derivation，只要程序名称和相关接口不变即可。我们所编写的 derivation 正是按照 nixpkgs 中原有的方式完成的，所以可以直接无缝替换。</p><p>接下来需要 <code>import</code> 这个文件，修改 <code>./system/default.nix</code>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./system/default.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  imports <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>./hardware.nix</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>./service.nix</span>
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>运行 <code>colmena apply</code>，不出意料 Minecraft 服务器就会以 Systemd 服务的方式运行了。在服务器上运行 <code>systemctl status minecraft-server.service</code>, 应该可以看到其在正常运行。服务的所有数据都在 <code>/var/lib/minecraft</code> 中，可以通过 <code>services.minecraft-server.dataDir</code> 修改。</p><h3 id=声明式配置管理员>声明式配置管理员</h3><p>nixpkgs 中的相关 NixOS Modules 只实现了配置 <code>server.properties</code> 和白名单，我们可以试试自己编写 NixOS Modules 来扩展其功能。</p><p>首先创建以下文件：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./modules/minecraft-server/default.nix</span>
+</span></span><span style=display:flex><span>{ config<span style=color:#f92672>,</span> lib<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#75715e># NixOS modules that add extra options for services.minecraft-server.</span>
+</span></span><span style=display:flex><span>  imports <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>首先是 op 的配置。op 的信息保存在 <code>ops.json</code> 中，由 <code>uuid</code>、<code>name</code>、<code>level</code>、<code>bypassesPlayerLimit</code> 组成的一个字典描述一位 op 的信息，所有 op 的信息组成一个列表。据此，声明对应的 options：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./modules/minecraft-server/operator.nix</span>
+</span></span><span style=display:flex><span>{ config<span style=color:#f92672>,</span> lib<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>  cfg <span style=color:#f92672>=</span> config<span style=color:#f92672>.</span>services<span style=color:#f92672>.</span>minecraft-server;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  operatorType <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>submodule {
+</span></span><span style=display:flex><span>    options <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      uuid <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>strMatching
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}&#34;</span>;
+</span></span><span style=display:flex><span>        example <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&#34;</span>;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;UUID of an operator.&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      level <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>enum [ <span style=color:#ae81ff>1</span> <span style=color:#ae81ff>2</span> <span style=color:#ae81ff>3</span> <span style=color:#ae81ff>4</span> ];
+</span></span><span style=display:flex><span>        default <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Permission level of an operator.&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      bypassesPlayerLimit <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>bool;
+</span></span><span style=display:flex><span>        default <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          Whether to allow an operator enter the server even if current number
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          of players has reached the limit.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        &#39;&#39;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span><span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>  options<span style=color:#f92672>.</span>services<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    operator <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>      type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>attrsOf operatorType;
+</span></span><span style=display:flex><span>      default <span style=color:#f92672>=</span> {};
+</span></span><span style=display:flex><span>      example <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        op <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>          uuid <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx&#34;</span>;
+</span></span><span style=display:flex><span>          level <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>;
+</span></span><span style=display:flex><span>          bypassesPlayerLimit <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>;
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>      description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Operator configurations of this server&#34;</span>;
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>接下来就要在一个适当的时机应用配置：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./modules/minecraft-server/operator.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  config <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkIf cfg<span style=color:#f92672>.</span>enable {
+</span></span><span style=display:flex><span>    systemd<span style=color:#f92672>.</span>services<span style=color:#f92672>.</span>minecraft-server<span style=color:#f92672>.</span>preStart <span style=color:#f92672>=</span> <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>      operatorList <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mapAttrsToList
+</span></span><span style=display:flex><span>        (name: attrs: attrs <span style=color:#f92672>//</span> { <span style=color:#66d9ef>inherit</span> name; })
+</span></span><span style=display:flex><span>        cfg<span style=color:#f92672>.</span>operator;
+</span></span><span style=display:flex><span>      operatorFile <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>writeText <span style=color:#e6db74>&#34;ops.json&#34;</span> (builtins<span style=color:#f92672>.</span>toJSON operatorList);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>in</span>
+</span></span><span style=display:flex><span>      <span style=color:#66d9ef>if</span> cfg<span style=color:#f92672>.</span>declarative <span style=color:#66d9ef>then</span> <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        if [[ -e .declarative-op ]]; then
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          ln -sf </span><span style=color:#e6db74>${</span>operatorFile<span style=color:#e6db74>}</span><span style=color:#e6db74> ops.json
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        else
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          ln -sb --suffix=.stateful </span><span style=color:#e6db74>${</span>operatorFile<span style=color:#e6db74>}</span><span style=color:#e6db74> ops.json
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>          touch .declarative-op
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        fi
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      &#39;&#39;</span> <span style=color:#66d9ef>else</span> <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        rm .declarative-op || true
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      &#39;&#39;</span>;
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>以上代码利用 Nix 内建的 attrset 转换 JSON 的功能，由配置生成 JSON 文件，储存在 Nix Store 中。接下来在 Systemd 服务启动前，创建一个符号链接，指向我们刚刚生成的 JSON。为了配合原有的 <code>services.minecraft-server.declarative</code> 选项，还添加了备份原有 <code>ops.json</code> 的功能。</p><p>在 <code>./system/service.nix</code> 中添加配置：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./system/service.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  services<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    operator <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      oo_infty <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        uuid <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;6b93f3cf-2dd8-4640-8852-011e91931684&#34;</span>;
+</span></span><span style=display:flex><span>        level <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      whitepaperdog <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        uuid <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;9a319d7f-425a-4768-ae00-add32a945d2c&#34;</span>;
+</span></span><span style=display:flex><span>        level <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># ...</span>
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>让 NixOS 配置引入 NixOS Modules：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./modules/minecraft-server/default.nix</span>
+</span></span><span style=display:flex><span>{ config<span style=color:#f92672>,</span> lib<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#75715e># NixOS modules that add extra options for services.minecraft-server.</span>
+</span></span><span style=display:flex><span>  imports <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>./addons.nix</span>
+</span></span><span style=display:flex><span>  ];
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./flake.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  outputs <span style=color:#f92672>=</span> { self<span style=color:#f92672>,</span> nixpkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }<span style=color:#f92672>@</span>inputs: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    pkgs <span style=color:#f92672>=</span> <span style=color:#f92672>import</span> nixpkgs { system <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;x86_64-linux&#34;</span>; };
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>    nixosModules<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> <span style=color:#f92672>import</span> <span style=color:#e6db74>./modules/minecraft-server</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    nixosConfigurations<span style=color:#f92672>.</span>clyz-minecraft <span style=color:#f92672>=</span> nixpkgs<span style=color:#f92672>.</span>lib<span style=color:#f92672>.</span>nixosSystem {
+</span></span><span style=display:flex><span>      modules <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>./system</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>nixosModules<span style=color:#f92672>.</span>minecraft-server
+</span></span><span style=display:flex><span>      ];
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    colmena <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      clyz-minecraft <span style=color:#f92672>=</span> { name<span style=color:#f92672>,</span> nodes<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }: {
+</span></span><span style=display:flex><span>        imports <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>./system</span>
+</span></span><span style=display:flex><span>          self<span style=color:#f92672>.</span>nixosModules<span style=color:#f92672>.</span>minecraft-server
+</span></span><span style=display:flex><span>        ];
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=声明式配置-mod-与-plugin>声明式配置 mod 与 plugin</h3><p>通过 Nix 下载 mod 和 plugin 到 Nix Store 中，在将它们链接到对应目录中，NixOS Modules 编写方法也是类似的。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./modules/minecraft-server/addons.nix</span>
+</span></span><span style=display:flex><span>{ config<span style=color:#f92672>,</span> lib<span style=color:#f92672>,</span> pkgs<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>  cfg <span style=color:#f92672>=</span> config<span style=color:#f92672>.</span>services<span style=color:#f92672>.</span>minecraft-server;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  addonType <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>submodule ({ config<span style=color:#f92672>,</span> <span style=color:#f92672>...</span> }: {
+</span></span><span style=display:flex><span>    options <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      mcVersion <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>str;
+</span></span><span style=display:flex><span>        default <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;any&#34;</span>;
+</span></span><span style=display:flex><span>        example <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;The version of Minecraft that load this mod or plugin&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      addonVersion <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>str;
+</span></span><span style=display:flex><span>        example <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.1.0&#34;</span>;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;The version of this mod or plugin&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      version <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>str;
+</span></span><span style=display:flex><span>        default <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;addon.</span><span style=color:#e6db74>${</span>config<span style=color:#f92672>.</span>addonVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>-mc.</span><span style=color:#e6db74>${</span>config<span style=color:#f92672>.</span>mcVersion<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>;
+</span></span><span style=display:flex><span>        defaultText <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;addon.&lt;addonVersion&gt;-mc.&lt;mcVersion&gt;&#34;</span>;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Combination of Minecraft version and addon version&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      url <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>str;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;The URL used to fetch this mod or plugin&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      hash <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>        type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>str;
+</span></span><span style=display:flex><span>        description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;The hash of this mod or plugin&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>  });
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  cleanupAddonsScript <span style=color:#f92672>=</span> dir: <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    # Only change jar files.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    addons=</span><span style=color:#e6db74>${</span>dir<span style=color:#e6db74>}</span><span style=color:#e6db74>/*.jar
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    for file in $addons ; do
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      if [[ ! -L &#34;$file&#34; ]]; then
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        # Change files that aren&#39;t symlinks.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        mv &#34;$file&#34; &#34;$file.stateful&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      else
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        # Remove symlinks in case of already abandoned mods or plugins.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        rm &#34;$file&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      fi
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    done
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  &#39;&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># A workaround which fixes URLs that contain &#39;+&#39;.</span>
+</span></span><span style=display:flex><span>  santinizeUrl <span style=color:#f92672>=</span> url: builtins<span style=color:#f92672>.</span>replaceStrings [ <span style=color:#e6db74>&#34;%2B&#34;</span> ] [ <span style=color:#e6db74>&#34;+&#34;</span> ] url;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  installAddonScript <span style=color:#f92672>=</span> dir: addon: attr: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    src <span style=color:#f92672>=</span> pkgs<span style=color:#f92672>.</span>fetchurl {
+</span></span><span style=display:flex><span>      <span style=color:#66d9ef>inherit</span> (attr) hash;
+</span></span><span style=display:flex><span>      url <span style=color:#f92672>=</span> santinizeUrl attr<span style=color:#f92672>.</span>url;
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>    name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>addon<span style=color:#e6db74>}</span><span style=color:#e6db74>-</span><span style=color:#e6db74>${</span>attr<span style=color:#f92672>.</span>version<span style=color:#e6db74>}</span><span style=color:#e6db74>.jar&#34;</span>;
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span> <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    ln -s &#34;</span><span style=color:#e6db74>${</span>src<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34; &#34;</span><span style=color:#e6db74>${</span>dir<span style=color:#e6db74>}</span><span style=color:#e6db74>/</span><span style=color:#e6db74>${</span>name<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  &#39;&#39;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  installAllAddonScript <span style=color:#f92672>=</span> dir: addons: <span style=color:#66d9ef>let</span>
+</span></span><span style=display:flex><span>    installScriptList <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mapAttrsToList
+</span></span><span style=display:flex><span>      (addon: attr: installAddonScript dir addon attr)
+</span></span><span style=display:flex><span>      addons;
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>in</span>
+</span></span><span style=display:flex><span>    builtins<span style=color:#f92672>.</span>concatStringsSep <span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span> installScriptList;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>in</span> {
+</span></span><span style=display:flex><span>  options<span style=color:#f92672>.</span>services<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    mods <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>      type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>attrsOf addonType;
+</span></span><span style=display:flex><span>      default <span style=color:#f92672>=</span> {};
+</span></span><span style=display:flex><span>      example <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        fabric-api <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>          mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>          addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.92.2&#34;</span>;
+</span></span><span style=display:flex><span>          url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/P7dR8mSH/versions/P7uGFii0/fabric-api-0.92.2%2B1.20.1.jar&#34;</span>;
+</span></span><span style=display:flex><span>          hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-RQD4RMRVc9A51o05Y8mIWqnedxJnAhbgrT5d8WxncPw=&#34;</span>;
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>      description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;All needed mods&#34;</span>;
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    plugins <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkOption {
+</span></span><span style=display:flex><span>      type <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>types<span style=color:#f92672>.</span>attrsOf addonType;
+</span></span><span style=display:flex><span>      default <span style=color:#f92672>=</span> {};
+</span></span><span style=display:flex><span>      example <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        world-edit <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>          mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>          addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;7.3.1&#34;</span>;
+</span></span><span style=display:flex><span>          url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/1u6JkXh5/versions/j8KJp1Ch/worldedit-bukkit-7.3.1.jar&#34;</span>;
+</span></span><span style=display:flex><span>          hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-EWg4q0pIuwbn471t0PT4jTaTSCc4O+WzhXXaBZtQUZk=&#34;</span>;
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>      description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;All needed plugins&#34;</span>;
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  config <span style=color:#f92672>=</span> lib<span style=color:#f92672>.</span>mkIf cfg<span style=color:#f92672>.</span>enable {
+</span></span><span style=display:flex><span>    systemd<span style=color:#f92672>.</span>services<span style=color:#f92672>.</span>minecraft-server<span style=color:#f92672>.</span>preStart <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      </span><span style=color:#e6db74>${</span>cleanupAddonsScript <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>cfg<span style=color:#f92672>.</span>dataDir<span style=color:#e6db74>}</span><span style=color:#e6db74>/mods&#34;</span><span style=color:#e6db74>}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      </span><span style=color:#e6db74>${</span>installAllAddonScript <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>cfg<span style=color:#f92672>.</span>dataDir<span style=color:#e6db74>}</span><span style=color:#e6db74>/mods&#34;</span> cfg<span style=color:#f92672>.</span>mods<span style=color:#e6db74>}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      </span><span style=color:#e6db74>${</span>cleanupAddonsScript <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>cfg<span style=color:#f92672>.</span>dataDir<span style=color:#e6db74>}</span><span style=color:#e6db74>/plugins&#34;</span><span style=color:#e6db74>}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      </span><span style=color:#e6db74>${</span>installAllAddonScript <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>cfg<span style=color:#f92672>.</span>dataDir<span style=color:#e6db74>}</span><span style=color:#e6db74>/plugins&#34;</span> cfg<span style=color:#f92672>.</span>plugins<span style=color:#e6db74>}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#39;&#39;</span>;
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-nix data-lang=nix><span style=display:flex><span><span style=color:#75715e># ./system/service.nix</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  services<span style=color:#f92672>.</span>minecraft-server <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    mods <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      fabric-api <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>        addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.92.2&#34;</span>;
+</span></span><span style=display:flex><span>        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/P7dR8mSH/versions/P7uGFii0/fabric-api-0.92.2%2B1.20.1.jar&#34;</span>;
+</span></span><span style=display:flex><span>        hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-RQD4RMRVc9A51o05Y8mIWqnedxJnAhbgrT5d8WxncPw=&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      banner <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>        addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;664&#34;</span>;
+</span></span><span style=display:flex><span>        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/7ntInrAy/versions/aTkeI3Og/banner-1.20.1-664.jar&#34;</span>;
+</span></span><span style=display:flex><span>        hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-rLqOBbu+uaAZxtYtM2Tt2Fb6ewDYiG4I7+10JEmQMR8=&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      carpet <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>        addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.4.112&#34;</span>;
+</span></span><span style=display:flex><span>        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/TQTTVgYE/versions/K0Wj117C/fabric-carpet-1.20-1.4.112%2Bv230608.jar&#34;</span>;
+</span></span><span style=display:flex><span>        hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-AK0O0VxFf97A5u7+hNeeG7e4+R9fOhM8+Jyytg/7PRE=&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      immersive-aircraft <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>        addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.0.1&#34;</span>;
+</span></span><span style=display:flex><span>        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/x3HZvrj6/versions/3hpofkRO/immersive_aircraft-1.0.1%2B1.20.1-fabric.jar&#34;</span>;
+</span></span><span style=display:flex><span>        hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-oDP3NRESX7wMO+v1SNlbPBaRQn2/E1tBsj8kZJU+WRw=&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    plugins <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      multi-login <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.6.10&#34;</span>;
+</span></span><span style=display:flex><span>        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://github.com/CaaMoe/MultiLogin/releases/download/v0.6.10/MultiLogin-Bukkit-0.6.10.jar&#34;</span>;
+</span></span><span style=display:flex><span>        hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-izUPvUiN08WU7Od/SCmI0SLLVAGax9UM6RdeFm1xVLw=&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>      world-edit <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        mcVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1.20.1&#34;</span>;
+</span></span><span style=display:flex><span>        addonVersion <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;7.3.1&#34;</span>;
+</span></span><span style=display:flex><span>        url <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://cdn.modrinth.com/data/1u6JkXh5/versions/j8KJp1Ch/worldedit-bukkit-7.3.1.jar&#34;</span>;
+</span></span><span style=display:flex><span>        hash <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sha256-EWg4q0pIuwbn471t0PT4jTaTSCc4O+WzhXXaBZtQUZk=&#34;</span>;
+</span></span><span style=display:flex><span>      };
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>  };
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></section></article></main><footer class="opaco mx-auto flex h-[4.5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"><div class=mr-auto>&copy; 2024
+<a class=link href=https://oo-infty.netlify.app/>oo-infty's site</a></div><a class="link mx-6" href=https://gohugo.io/ rel=noopener target=_blank>Powered by Hugo️️</a>️
+<a class=link href=https://github.com/nanxiaobei/hugo-paper rel=noopener target=_blank>✎ Paper</a></footer></body></html>
